@@ -12,3 +12,12 @@ Documentation for the collection.
 * Modify the `galaxy.yml` file.
 * Create any additional directories and files.
 * Commit and push the changes to the remote directory 
+
+## Modules
+
+* In the `plugins` directory, create the appropriate sub-directory and add your code
+
+## Create role(s) inside the collection
+
+* `cd ~projects//collections/joelwking/mongodb/roles`
+* `ansible-galaxy role init mongodb`
