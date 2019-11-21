@@ -1,2 +1,3 @@
-# ansible-mongodb
-Ansible Collection for MongoDB
+# Ansible Collection - joelwking.mongodb
+
+Documentation for the collection.
