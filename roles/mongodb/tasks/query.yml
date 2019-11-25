@@ -1,0 +1,19 @@
+---
+# tasks file for mongodb
+
+  - name: Query document from MongoDB
+    joelwking.mongodb.mongodb_iq:
+        host: "{{ mongodb_hostname }}"
+        username: "{{ mongodb_username }}"
+        password: "{{ mongodb_password }}"
+        port: "{{ mongodb_port }}"
+        #
+        database:  "{{ mongo_database }}"
+        collection: "{{ mongo_collection }}"
+        query: "{{ mongo_query }}"
+        
+ 
+   - debug:
+      msg: "Returned ObjectID: {{ _id }}"
+      verbosity: 2
+

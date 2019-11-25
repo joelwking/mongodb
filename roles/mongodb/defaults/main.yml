@@ -1,2 +1,18 @@
 ---
 # defaults file for mongodb
+
+
+mongodb_hostname: localhost
+mongodb_port:  27017
+mongodb_username: root
+mongodb_password: ""
+#
+mongo_database:  "my_database"
+mongo_collection: "my_collection"
+
+# Example of how to reference a file for loading into the target database and collection
+mongo_document: "{{ lookup('file', role_path/files/confections.json) }}"
+
+# Example of how to build a dictionary to query (retrieve) the first document which matches
+mongo_query: 
+  attributes.category.name: "confections"

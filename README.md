@@ -21,3 +21,9 @@ Documentation for the collection.
 
 * `cd ~projects//collections/joelwking/mongodb/roles`
 * `ansible-galaxy role init mongodb`
+
+## Module Documentation
+
+You can use the moodule-path argument to view the documentation for a module packaged with the collection
+
+$ ansible-doc --module-path  /collections/ansible_collections/joelwking/mongodb/plugins/modules/ mongodb_iq
