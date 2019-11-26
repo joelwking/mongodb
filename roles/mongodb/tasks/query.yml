@@ -8,12 +8,7 @@
         password: "{{ mongodb_password }}"
         port: "{{ mongodb_port }}"
         #
-        database:  "{{ mongo_database }}"
-        collection: "{{ mongo_collection }}"
-        query: "{{ mongo_query }}"
+        database:  "{{ mongodb_database }}"
+        collection: "{{ mongodb_collection }}"
+        query: "{{ mongodb_query }}"
         
- 
-   - debug:
-      msg: "Returned ObjectID: {{ _id }}"
-      verbosity: 2
-

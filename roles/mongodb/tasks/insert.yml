@@ -11,8 +11,3 @@
         database:  "{{ database }}"
         collection: "{{ collection }}"
         document: "{{ lookup('file', filename) }}"
- 
-   - debug:
-      msg: "Document loaded under ObjectID: {{ _id }}"
-      verbosity: 2
-

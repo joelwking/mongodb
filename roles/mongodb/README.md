@@ -1,22 +1,33 @@
-Role Name
+MongoDB
 =========
 
-A brief description of the role goes here.
+Uses module `mongodb_iq` to insert or query documents in a MongoDB.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role relies on the module `mongodb_iq`, which must be accessable via the collection `joelwking.mongodb` or separately downloaded and saved in `/usr/share/ansible` and referenced by the *library* variable in `ansible.cfg`. 
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+See *defaults/main.yml* for default role variables.
+
+| **Variable Name**           | **Required** | **Default** | **Description**    |
+|-----------------------------|--------------|-------------|------------------------------------------------------------------------------------------------------------|
+| mongodb_hostname            | no           | localhost   | hostname running the MongoDB instance  |
+| mongodb_port                | no           | 27017       | listening port|
+| mongodb_username            | no           | root        | uid |
+| mongodb_password            | no           | ""          | password |
+| mongodb_database            | yes          | "my_database" | name of the database |
+| mongodb_collection          | yes          | "my_collection" | name of the collection |
+| mongodb_document            | no           | None | JSON object to load |
+| mongodb_query               | no           | None | key, value pair used for query |
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
@@ -30,9 +41,9 @@ Including an example of how to use your role (for instance, with variables passe
 License
 -------
 
-BSD
+GPLv3
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+email: joel.king@wwt.com  GitHub/GitLab: @joelwking 

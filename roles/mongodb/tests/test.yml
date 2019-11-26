@@ -1,5 +1,68 @@
+#!/usr/bin/ansible-playbook
 ---
-- hosts: localhost
-  remote_user: root
-  roles:
-    - mongodb
+#
+#      Copyright (c) 2019 World Wide Technology, Inc.
+#      All rights reserved.
+#
+#      author: Joel W. King, World Wide Technology
+#
+#      Load a JSON file into a MongoDB and then query the database returning the document
+#
+#      Sample Inventory file entry:
+#
+#        [mongodb]
+#        rocket.sandbox.wwtatc.local
+#        [mongodb:vars]
+#        port=27017
+#
+#      Sample passwords.yml
+#        mongodb:
+#          username: root
+#          password: ""
+#
+#      Usage:
+#
+#        ./test.yml -e "database=foo collection=bar filename=./files/input.json"
+#
+#      Input file example:
+#      {
+#      "message_gbl": {
+#      "room_name": "Super-NetOps",
+#      "teams": "https://outlook.office.com/webhook/0ebc95ca-9544354a"}
+#      }
+#
+#
+- name: load and query MongoDB database
+  hosts:  localhost
+
+  vars:
+    # these default values would be overridden with extra vars specified with the -e switch
+    mongodb_hostname: rocket.sandbox.wwtatc.local
+
+    database: foo
+    collection: bar
+    filename: "{{ playbook_dir }}/files/input.json"
+
+  tasks:
+    - name: Load data
+      include_role:
+        name: mongodb
+        tasks_from: insert
+      vars:
+        # See the role  'defaults/main.yml' for values not specified here
+        mongodb_database:  "{{ database }}"
+        mongodb_collection: "{{ collection }}"
+        mongodb_document: "{{ filename }}"
+
+    - debug:
+        msg: "Document loaded under ObjectID: {{ _id }}"
+
+    - name: Query data
+      include_role:
+        name: mongodb
+        tasks_from: query
+      vars:
+        # See the role  'defaults/main.yml' for values not specified here
+        mongodb_database:  "{{ database }}"
+        mongodb_collection: "{{ collection }}"
+        mongodb_query: {"_id": "{{ _id }}" }
