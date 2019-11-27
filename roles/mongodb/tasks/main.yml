@@ -2,4 +2,4 @@
 # tasks file for mongodb
 
    - debug:
-      msg: "main.yml not implemented, use tasks insert.yml or query.yml"
+       msg: "main.yml not implemented, use tasks insert.yml or query.yml"

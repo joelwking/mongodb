@@ -2,3 +2,7 @@
 # .gitignore file 
 #
 plugins/modules/*.pyc
+#
+# Ignore the collection binary
+#
+*mongodb*.tar.gz

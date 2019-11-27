@@ -155,7 +155,7 @@ class MongoDB(object):
 
         try:
             self.cnx = pymongo.MongoClient(host, port)
-        except pymongo.errors.ConnectionFailure, e:
+        except pymongo.errors.ConnectionFailure as e:
             self.success = False
             return "Could not connect to MongoDB: %s" % e
         return
