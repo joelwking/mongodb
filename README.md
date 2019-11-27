@@ -27,3 +27,16 @@ Documentation for the collection.
 You can use the moodule-path argument to view the documentation for a module packaged with the collection
 
 $ ansible-doc --module-path  /collections/ansible_collections/joelwking/mongodb/plugins/modules/ mongodb_iq
+
+## Setting up the Environment
+
+Given your collections is at `/collections/ansible_collections/joelwking`
+
+```bash
+export ANSIBLE_COLLECTIONS_PATHS=/collections/
+```
+Or update your `ansible.cfg` file to include
+
+```
+collections_paths = /collections/
+```

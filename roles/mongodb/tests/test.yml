@@ -1,7 +1,7 @@
 #!/usr/bin/ansible-playbook
 ---
 #
-#      Copyright (c) 2019 World Wide Technology, Inc.
+#      Copyright (c) 2019 World Wide Technology
 #      All rights reserved.
 #
 #      author: Joel W. King, World Wide Technology
