@@ -2,8 +2,15 @@
 
 This collection packages an Ansible module and associated role which inserts or queries a MongoDB document.
 
-## Setting up the Environment
+## Module Documentation
+You can use the moodule-path argument to view the documentation for a module packaged with the collection
+```bash
+$ ansible-doc --module-path  /collections/ansible_collections/joelwking/mongodb/plugins/modules/ mongodb_iq
+```
+## Role Documentation
+Refer to the `README.md` in the role directory on how to use and call the role. There is a sample playbook in the role in `tests/test.yml` which demonstrates how to use the role. 
 
+## Setting up the Environment
 Given your collections is installed on the control node at `/collections/ansible_collections/joelwking` you will need to configure the environment to locate the collection and optionally, the associated role.
 
 ```bash
@@ -21,8 +28,5 @@ Note: you do not need to use the provided role, the module can be called directl
 
 Use the `ansible-galaxy collection` command to install the collection.
 
-## Module Documentation
-
-You can use the moodule-path argument to view the documentation for a module packaged with the collection
-
-$ ansible-doc --module-path  /collections/ansible_collections/joelwking/mongodb/plugins/modules/ mongodb_iq
+## Author
+joel.king@wwt.com GitHub/gitLab: @joelwking

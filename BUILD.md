@@ -19,24 +19,29 @@ This document includes notes and tips for creating, building and publishing a co
 
 ## Create role(s) inside the collection
 
-* `cd ~projects//collections/joelwking/mongodb/roles`
-* `ansible-galaxy role init mongodb`
-
+```bash
+$ cd ~projects/collections/joelwking/mongodb/roles
+$ ansible-galaxy role init mongodb
+```
 ## Build the collection
 
 Change your current directory to the root of the collection, for example `cd /collections/ansible_collections/joelwking/mongodb` then issue:
+
 ```bash
 $ ansible-galaxy collection build
 Created collection for joelwking.mongodb at /collections/ansible_collections/joelwking/mongodb/joelwking-mongodb-0.0.1.tar.gz
 ```
 
 ## Upload the collection
+You need to logon Galaxy and generate and copy a API Key and provide it as an argument.
 
 ```bash
-ansible-galaxy collection publish /collections/ansible_collections/joelwking/mongodb/joelwking-mongodb-0.0.1.tar.gz --api-key=SECRET
+$ ansible-galaxy collection publish /collections/ansible_collections/joelwking/mongodb/joelwking-mongodb-0.0.1.tar.gz --api-key=SECRET
 Publishing collection artifact '/collections/ansible_collections/joelwking/mongodb/joelwking-mongodb-0.0.1.tar.gz' to default https://galaxy.ansible.com/api/
 Collection has been published to the Galaxy server default https://galaxy.ansible.com/api/
 Waiting until Galaxy import task https://galaxy.ansible.com/api/v2/collection-imports/692 has completed
 Collection has been successfully published and imported to the Galaxy server default https://galaxy.ansible.com/api/
 
 ```
+## Author
+joel.king@wwt.com GitHub/gitLab: @joelwking
