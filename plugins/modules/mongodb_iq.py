@@ -43,6 +43,11 @@ options:
         description:
             - Password used to authenticate with the database
         required: false
+    authsource:
+        description:
+            - This database is the authentication database for the user.
+        required: false
+        default: admin
     host:
         description:
             - hostname or IP address running the database
@@ -53,6 +58,39 @@ options:
             - port data base is listening on
         required: false
         default: 27017
+    protocol:
+        description:
+            - when connecting to MongoDB Atlas or Digital Ocean managed MongoDB, specify 'mongodb+srv',
+            - for a single host running the service, use the default value 'mongodb'
+        required: false
+        default: mongodb
+        choices: ["mongodb", "mongodb+srv"]
+    tls:
+        description:
+            - Use transport layer security (tls), MongoDB Compass refers to this as 'ssl'.
+        required: false
+        default: false
+    tlscafile:
+        description:
+            - A file containing the download of your cluster’s CA certificate to establish TLS encryption 
+            - between the client (this module) and the cluster.
+    appname:
+        description:
+            - The name of the application that created this MongoClient instance. Used for logging.
+        required: false
+        default: none
+    replicaset:
+        description:
+            - The name of the replica set to connect to.
+        required: false
+        default: none
+    readpreference:
+        description:
+            - The replica set read preference. One of primary, primaryPreferred, secondary, 
+            - secondaryPreferred, or nearest.
+        required: false
+        default: primary
+        choices: ['primary', 'primaryPreferred', 'secondary', 'secondaryPreferred', 'nearest']
 
 author:
     - Joel W. King (@joelwking)
@@ -102,12 +140,55 @@ EXAMPLES = '''
         collection: "test"
         document: "{{ lookup('file', './library/ansible_hacking.json') }}"
 
+---
+ - name: Load JSON file into a Digital Ocean managed MongoDB
+    joelwking.mongodb.mongodb_iq:
+        host: "{{ inventory_hostname }}"
+        username: "{{ mongodb.username }}"
+        password: "{{ mongodb.password }}"
+        port: "{{ port }}"
+        appname: mongodb_iq
+        authsource: admin
+        protocol: "mongodb+srv"
+        readpreference: primary
+        replicaset: "db-mongodb-nyc3-59535"
+        tls: True
+        tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
+        database:  "{{ database }}"
+        collection: "{{ collection }}"
+        document: "{{ lookup('file', filename) }}"
+
+  - debug:
+        msg: "Document loaded under ObjectID: {{ _id }}"
+
+  - name: Query document from Digital Ocean managed MongoDB
+    joelwking.mongodb.mongodb_iq:
+        host: "{{ inventory_hostname }}"
+        username: "{{ mongodb.username }}"
+        password: "{{ mongodb.password }}"
+        port: "{{ port }}"
+        appname: mongodb_iq
+        authsource: admin
+        protocol: "mongodb+srv"
+        readpreference: primary
+        replicaset: "db-mongodb-nyc3-59535"
+        tls: True
+        tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
+        database:  "{{ database }}"
+        collection: "{{ collection }}"
+        query: "{{ query }}"
+    vars:
+      query:
+        _id: '{{ _id }}'
+        
+
 '''
 # References:
 #         http://docs.ansible.com/ansible/latest/common_return_values.html
 #         http://altons.github.io/python/2013/01/21/gentle-introduction-to-mongodb-using-pymongo/
 #         http://api.mongodb.com/python/current/tutorial.html
 #         https://gist.github.com/DavidWittman/10688924
+#         https://pymongo.readthedocs.io/en/stable/api/pymongo/mongo_client.html
 # Issues:
 #         Assignment statements in Python do not copy objects, without issuing a
 #         copy.deepcopy, when we convert _id to an object for the query, the original value
@@ -144,17 +225,18 @@ class MongoDB(object):
         self.result = dict(ansible_facts={})
         self.cnx = None
 
-    def logon(self, username="root", password=None, host="localhost", port=27017):
+    def logon(self, username="root", password=None, host='localhost', protocol='mongodb', **kwargs):
         """
             Connect to a database and authenticate.
         """
         if username and password:
-            username = urllib.quote_plus(username)
-            password = urllib.quote_plus(password)
-            host = "mongodb://%s:%s@%s" % (username, password, host)
+            username = urllib.parse.quote_plus(username)
+            password = urllib.parse.quote_plus(password)
+
+        uri = '{}://{}:{}@{}/'.format(protocol, username, password, host)
 
         try:
-            self.cnx = pymongo.MongoClient(host, port)
+            self.cnx = pymongo.MongoClient(uri, **kwargs)
         except pymongo.errors.ConnectionFailure as e:
             self.success = False
             return "Could not connect to MongoDB: %s" % e
@@ -241,11 +323,18 @@ def main():
             host=dict(default="localhost", required=False),
             username=dict(default="root", required=False),
             password=dict(default=None, required=False, no_log=True),
+            authsource=dict(default="admin", required=False),
             port=dict(default=27017, required=False, type="int"),
+            protocol=dict(default="mongodb", required=False, choices=["mongodb", "mongodb+srv"]),
             database=dict(required=True),
             collection=dict(required=True),
             query=dict(required=False, type="dict"),
-            document=dict(required=False, type="dict")
+            document=dict(required=False, type="dict"),
+            appname=dict(required=False, default=None),
+            tls=dict(required=False, default=False, type="bool"),
+            tlscafile=dict(required=False, default=None),
+            replicaset=dict(required=False, default=None),
+            readpreference=dict(required=False, default="primary", choices=["primary", "primaryPreferred", "secondary", "secondaryPreferred", "nearest"])
         ),
         supports_check_mode=False
     )
@@ -260,14 +349,26 @@ def main():
         module.fail_json(msg="Specify either query or document")
 
     #
+    #  Build camel case keyword arguments for the client connection request
+    #
+    client_args = dict(port=module.params.get("port"),
+                       authSource=module.params.get("authsource"),
+                       replicaSet=module.params.get("replicaset"),
+                       readPreference=module.params.get("readpreference"),
+                       appname=module.params.get("appname"),
+                       tls=module.params.get("tls"),
+                       tlsCAFile=module.params.get("tlscafile"))
+
+    #
     #  Connect and authenticate with the data base, these params have default values specified
     #
     mdx = MongoDB()
-
     result = mdx.logon(username=module.params["username"],
                        password=module.params["password"],
                        host=module.params["host"],
-                       port=module.params["port"])
+                       protocol=module.params["protocol"],
+                       **client_args)
+
     if not mdx.success:
         module.fail_json(msg=result)
 

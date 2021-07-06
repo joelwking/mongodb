@@ -6,3 +6,11 @@ plugins/modules/*.pyc
 # Ignore the collection binary
 #
 *mongodb*.tar.gz
+#
+# Ignore all tar files
+#
+*.tar
+#
+# ignore the ca-certificate.crt
+#
+playbooks/files/*.crt
