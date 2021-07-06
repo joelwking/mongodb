@@ -84,7 +84,7 @@ options:
             - The name of the replica set to connect to.
         required: false
         default: none
-    readPreference:
+    readpreference:
         description:
             - The replica set read preference. One of primary, primaryPreferred, secondary, 
             - secondaryPreferred, or nearest.
@@ -140,6 +140,48 @@ EXAMPLES = '''
         collection: "test"
         document: "{{ lookup('file', './library/ansible_hacking.json') }}"
 
+---
+ - name: Load JSON file into a Digital Ocean managed MongoDB
+    joelwking.mongodb.mongodb_iq:
+        host: "{{ inventory_hostname }}"
+        username: "{{ mongodb.username }}"
+        password: "{{ mongodb.password }}"
+        port: "{{ port }}"
+        appname: mongodb_iq
+        authsource: admin
+        protocol: "mongodb+srv"
+        readpreference: primary
+        replicaset: "db-mongodb-nyc3-59535"
+        tls: True
+        tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
+        database:  "{{ database }}"
+        collection: "{{ collection }}"
+        document: "{{ lookup('file', filename) }}"
+
+  - debug:
+        msg: "Document loaded under ObjectID: {{ _id }}"
+
+  - name: Query document from Digital Ocean managed MongoDB
+    joelwking.mongodb.mongodb_iq:
+        host: "{{ inventory_hostname }}"
+        username: "{{ mongodb.username }}"
+        password: "{{ mongodb.password }}"
+        port: "{{ port }}"
+        appname: mongodb_iq
+        authsource: admin
+        protocol: "mongodb+srv"
+        readpreference: primary
+        replicaset: "db-mongodb-nyc3-59535"
+        tls: True
+        tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
+        database:  "{{ database }}"
+        collection: "{{ collection }}"
+        query: "{{ query }}"
+    vars:
+      query:
+        _id: '{{ _id }}'
+        
+
 '''
 # References:
 #         http://docs.ansible.com/ansible/latest/common_return_values.html
@@ -188,8 +230,8 @@ class MongoDB(object):
             Connect to a database and authenticate.
         """
         if username and password:
-            username = urllib.quote_plus(username)
-            password = urllib.quote_plus(password)
+            username = urllib.parse.quote_plus(username)
+            password = urllib.parse.quote_plus(password)
 
         uri = '{}://{}:{}@{}/'.format(protocol, username, password, host)
 
