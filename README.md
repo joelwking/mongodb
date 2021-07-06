@@ -39,105 +39,11 @@ dnspython==2.1.0
 pymongo==3.11.4
 ```
 
-## Examples
+## Sample Playbook
 
-Refer to the following example inventory, vars files and playbook.
+Refer to `playbooks` directory for sample vars files and playbook.
 
-### Inventory
-
-`files/inventory.yml`
-
-```yaml
-all:
-    children:
-        mongodb:
-            hosts:
-              db-mongodb-nyc3-59535-4651b9d2.mongo.ondigitalocean.com:
-            vars:
-              port: 27017
-              ansible_python_interpreter: /home/administrator/ansible210/bin/python
-```
-
-### Vars Files
-
-When using a managed MongoDB service, you will also need to download the cluster’s CA certificate to establish TLS encryption between the control node and the cluster.
-
-`files/passwords.yml`
-
-```yaml
----
-mongodb:
-  username: doadmin
-  password: mypassword
-```
-
-`files/input.json`
-
-```json
-{"message_gbl": {
-    "room_name": "Super-NetOps",
-    "teams": "https://outlook.office.com/webhook/0ebc95ca-9544354a"}
-}
-```
-
-### Playbook
-
-```yaml
-- name: load and query MongoDB database
-  hosts:  mongodb
-  connection: local
-  gather_facts: false
-
-  vars:
-    database: rebar
-    collection: foobar
-    filename: "{{ playbook_dir }}/files/input.json"
-
-  vars_files:
-     - "{{ playbook_dir }}/files/passwords.yml"
-
-  tasks:
-
-    - name: Load JSON file into a Digital Ocean managed MongoDB
-      joelwking.mongodb.mongodb_iq:
-          host: "{{ inventory_hostname }}"
-          username: "{{ mongodb.username }}"
-          password: "{{ mongodb.password }}"
-          port: "{{ port }}"
-          appname: mongodb_iq
-          authsource: admin
-          protocol: "mongodb+srv"
-          readpreference: primary
-          replicaset: "db-mongodb-nyc3-59535"
-          tls: True
-          tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
-          database:  "{{ database }}"
-          collection: "{{ collection }}"
-          document: "{{ lookup('file', filename) }}"
-
-    - debug:
-          msg: "Document loaded under ObjectID: {{ _id }}"
-
-    - name: Query document from Digital Ocean managed MongoDB
-      joelwking.mongodb.mongodb_iq:
-          host: "{{ inventory_hostname }}"
-          username: "{{ mongodb.username }}"
-          password: "{{ mongodb.password }}"
-          port: "{{ port }}"
-          appname: mongodb_iq
-          authsource: admin
-          protocol: "mongodb+srv"
-          readpreference: primary
-          replicaset: "db-mongodb-nyc3-59535"
-          tls: True
-          tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
-          database:  "{{ database }}"
-          collection: "{{ collection }}"
-          query: "{{ query }}"
-      vars:
-        query:
-          _id: '{{ _id }}'
-```
+>Note: You need to download your cluster’s CA certificate (for TLS encryption) between the control node and the cluster. Save the file as `files/ca-certificate.crt` relative to the playbook directory.
 
 ## Author
 joel.king@wwt.com GitHub/gitLab: @joelwking

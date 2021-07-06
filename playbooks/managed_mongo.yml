@@ -1,0 +1,89 @@
+#!/usr/bin/ansible-playbook
+---
+#
+#      Copyright (c) 2021 World Wide Technology
+#      All rights reserved.
+#
+#      author: Joel W. King, @joelwking
+#
+#      Load a JSON file into a MongoDB and then query the database returning the document
+#
+#      Sample Inventory file entry:
+#
+#        [mongodb]
+#        db-mongodb-nyc3-59535-4651b9d2.mongo.ondigitalocean.com
+#        [mongodb:vars]
+#        port=27017
+#
+#      Sample passwords.yml
+#        mongodb:
+#          username: doadmin
+#          password: "mypassword"
+#
+#      Usage:
+#
+#        ansible-playbook managed_mongo.yml -i files/inventory.yml --ask-vault-password
+#
+#      Input file example:
+#      {
+#      "message_gbl": {
+#      "room_name": "Super-NetOps",
+#      "teams": "https://outlook.office.com/webhook/0ebc95ca-9544354a"}
+#      }
+#
+#
+- name: load and query MongoDB database
+  hosts:  mongodb
+  connection: local
+  gather_facts: false
+
+  vars:
+    # these default values would be overridden with extra vars specified with the -e switch
+    database: rebar
+    collection: foobar
+    filename: "{{ playbook_dir }}/files/input.json"
+
+  vars_files:
+     - "{{ playbook_dir }}/files/passwords.yml"
+
+  tasks:
+
+    - name: Load JSON file into a Digital Ocean managed MongoDB
+      joelwking.mongodb.mongodb_iq:
+          host: "{{ inventory_hostname }}"
+          username: "{{ mongodb.username }}"
+          password: "{{ mongodb.password }}"
+          port: "{{ port }}"
+          appname: mongodb_iq
+          authsource: admin
+          protocol: "mongodb+srv"
+          readpreference: primary
+          replicaset: "db-mongodb-nyc3-59535"
+          tls: True
+          tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
+          database:  "{{ database }}"
+          collection: "{{ collection }}"
+          document: "{{ lookup('file', filename) }}"
+
+    - debug:
+          msg: "Document loaded under ObjectID: {{ _id }}"
+
+    - name: Query document from Digital Ocean managed MongoDB
+      joelwking.mongodb.mongodb_iq:
+          host: "{{ inventory_hostname }}"
+          username: "{{ mongodb.username }}"
+          password: "{{ mongodb.password }}"
+          port: "{{ port }}"
+          appname: mongodb_iq
+          authsource: admin
+          protocol: "mongodb+srv"
+          readpreference: primary
+          replicaset: "db-mongodb-nyc3-59535"
+          tls: True
+          tlscafile: '{{ playbook_dir }}/files/ca-certificate.crt'
+          database:  "{{ database }}"
+          collection: "{{ collection }}"
+          query: "{{ query }}"
+      vars:
+        query:
+          _id: '{{ _id }}'

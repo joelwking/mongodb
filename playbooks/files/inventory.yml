@@ -1,0 +1,8 @@
+all:
+    children:
+        mongodb:
+            hosts:
+              db-mongodb-nyc3-59535-4651b9d2.mongo.ondigitalocean.com:
+            vars:
+              port: 27017  
+              ansible_python_interpreter: /home/administrator/ansible210/bin/python

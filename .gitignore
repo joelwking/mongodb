@@ -10,3 +10,7 @@ plugins/modules/*.pyc
 # Ignore all tar files
 #
 *.tar
+#
+# ignore the ca-certificate.crt
+#
+playbooks/files/*.crt
